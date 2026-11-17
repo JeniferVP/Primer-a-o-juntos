@@ -9,7 +9,7 @@
 :root{--ink:#fff4e6;--glow:#ffd9a8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:#0b1633;overflow:hidden}
-.scene{position:relative;width:100%;height:100%;min-height:520px;overflow:hidden;
+.scene{--L:53s;position:relative;width:100%;height:100vh;height:100dvh;min-height:520px;overflow:hidden;
  background:linear-gradient(180deg,#081230 0%,#14264f 16%,#2b4682 32%,#6a6fb0 46%,#b98cbe 58%,#f0a9b8 68%,#ffcfa3 76%,#ffe3b0 82%,#ffd08a 100%)}
 .layer{position:absolute;inset:0;pointer-events:none}
 canvas{position:absolute;inset:0;width:100%;height:100%}
@@ -35,9 +35,13 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 .vignette{background:radial-gradient(ellipse at 50% 62%,transparent 55%,rgba(8,12,40,.45) 100%)}
 
 /* Espacios para los avatares */
-.avatar{position:absolute;bottom:24.5%;width:clamp(84px,15vw,170px);aspect-ratio:1/2.1;display:flex;align-items:flex-end;justify-content:center}
-.avatar.left{left:calc(50% - clamp(84px,15vw,170px) - clamp(34px,7vw,90px))}
-.avatar.right{left:calc(50% + clamp(34px,7vw,90px))}
+/* TAMAÑO: cambia 30dvh (alto de cada personaje respecto a la pantalla).
+   SEPARACIÓN: --g es la distancia de cada uno al rayo de luz central.
+   AJUSTE FINO: --dx mueve a cada personaje en horizontal (ej. -12px / 12px). */
+.avatar{--h:clamp(160px,30dvh,400px);--w:calc(var(--h) / 2.1);--g:clamp(10px,2.2vw,34px);--dx:0px;
+ position:absolute;bottom:15.5%;height:var(--h);width:var(--w);display:flex;align-items:flex-end;justify-content:center}
+.avatar.left{left:calc(50% - var(--w) - var(--g) + var(--dx))}
+.avatar.right{left:calc(50% + var(--g) + var(--dx))}
 .avatar img{width:100%;height:100%;object-fit:contain;object-position:bottom;filter:drop-shadow(0 0 18px rgba(255,210,170,.55))}
 .slot{width:100%;height:100%;border:1.5px dashed rgba(255,244,230,.7);border-radius:999px 999px 14px 14px;display:grid;place-items:center;
  text-align:center;font:italic 300 clamp(13px,1.8vw,18px)/1.3 "Cormorant Garamond",Georgia,serif;color:var(--ink);background:rgba(40,20,60,.18);backdrop-filter:blur(2px)}
@@ -50,24 +54,22 @@ h1{margin:0;font-weight:300;font-size:clamp(38px,8vw,92px);line-height:1;letter-
 .fade{position:absolute;inset:0;background:#050a1c;animation:out 2.6s ease forwards;pointer-events:none}
 @keyframes out{to{opacity:0;visibility:hidden}}
 /* Viaje de cámara: lejos → avatares → cielo */
-.cam{position:absolute;inset:0;transform-origin:50% 72%;animation:travel 25s linear forwards;will-change:transform}
-@keyframes travel{0%{transform:scale(1) translateY(0);animation-timing-function:cubic-bezier(.4,0,.2,1)}36%{transform:scale(2.4) translateY(0);animation-timing-function:linear}50%{transform:scale(2.4) translateY(0);animation-timing-function:cubic-bezier(.6,0,.9,.4)}66%{transform:scale(5) translateY(0);animation-timing-function:cubic-bezier(.3,0,.2,1)}84%,100%{transform:scale(2.8) translateY(46%)}}
+.cam{position:absolute;inset:0;transform-origin:50% 80%;animation:travel 25s linear forwards;will-change:transform}
+@keyframes travel{0%{transform:scale(1) translateY(0);animation-timing-function:cubic-bezier(.4,0,.2,1)}36%{transform:scale(2.4) translateY(0);animation-timing-function:linear}50%{transform:scale(2.4) translateY(0);animation-timing-function:cubic-bezier(.6,0,.9,.4)}66%{transform:scale(5) translateY(0);animation-timing-function:cubic-bezier(.3,0,.2,1)}84%,100%{transform:scale(2.8) translateY(51%)}}
 .flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,#fff 0,#ffeed6 40%,#ffd7e8 100%);animation:flash 25s linear forwards}
 @keyframes flash{0%,58%{opacity:0}64%{opacity:1}70%{opacity:.9}80%,100%{opacity:0}}
-.avatar{--w:clamp(56px,8.5vw,110px);--g:clamp(22px,4vw,56px);width:var(--w)}
-.avatar.left{left:calc(50% - var(--w) - var(--g))}
-.avatar.right{left:calc(50% + var(--g))}
 @keyframes cap{0%{opacity:0;transform:translateY(14px);filter:blur(6px)}14%{opacity:1;transform:none;filter:none}78%{opacity:1;filter:none}100%{opacity:0;filter:blur(6px)}}
 .text h1{animation:cap 6.5s 8.5s ease forwards}
 .text .sub{animation:cap 6.5s 9.3s ease forwards}
-.end{position:absolute;left:0;right:0;top:8%;padding:0 20px;text-align:center;color:var(--ink);font-family:"Cormorant Garamond",Georgia,serif;text-shadow:0 2px 24px rgba(10,10,50,.85);opacity:0;animation:endin 3.5s 22s ease forwards}
-.end div:first-child{font-weight:300;font-size:clamp(28px,5.5vw,64px);line-height:1.1}
-.end div+div{margin-top:.5em;font-style:italic;font-weight:300;font-size:clamp(17px,2.4vw,26px)}
 @keyframes endin{from{opacity:0;transform:translateY(12px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 .again{position:absolute;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));padding:8px 16px;border-radius:999px;border:1px solid rgba(255,244,230,.55);background:rgba(30,15,55,.35);color:var(--ink);font:italic 300 16px "Cormorant Garamond",Georgia,serif;cursor:pointer;opacity:0;animation:endin 2s 27s ease forwards}
 .again:focus-visible{outline:2px solid var(--glow);outline-offset:3px}
 .scene:not(.go) *{animation-play-state:paused!important}
-.start{position:absolute;inset:0;z-index:50;display:grid;place-items:center;text-align:center;color:var(--ink);font-family:"Cormorant Garamond",Georgia,serif;background:radial-gradient(circle at 50% 62%,#2a1c5c,#080d2a 55%,#03060f)}
+.start{position:absolute;inset:0;z-index:50;display:grid;place-items:center;text-align:center;color:var(--ink);font-family:"Cormorant Garamond",Georgia,serif;
+ background:
+  linear-gradient(rgba(5,8,28,.35),rgba(5,8,28,.6)),
+  url('gif.gif') center/cover no-repeat,
+  #03060f}
 .start .t1{font:400 clamp(44px,10vw,88px)/1 "Pinyon Script",cursive;margin:0 0 .5em;text-shadow:0 0 30px rgba(255,190,230,.5)}
 .begin{padding:12px 30px;border-radius:999px;border:1px solid rgba(255,217,168,.7);background:rgba(255,217,168,.08);color:var(--ink);font:italic 300 21px "Cormorant Garamond",Georgia,serif;cursor:pointer;box-shadow:0 0 30px rgba(255,200,160,.25)}
 .begin:hover{background:rgba(255,217,168,.2)}
@@ -76,14 +78,37 @@ h1{margin:0;font-weight:300;font-size:clamp(38px,8vw,92px);line-height:1;letter-
 .go .start{opacity:0;visibility:hidden;transition:opacity 1.8s ease,visibility 0s 1.8s}
 .mute{position:absolute;z-index:40;top:calc(14px + env(safe-area-inset-top,0px));right:14px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,244,230,.5);background:rgba(30,15,55,.4);color:var(--ink);font-size:18px;cursor:pointer;opacity:0;pointer-events:none}
 .go .mute{opacity:1;pointer-events:auto;transition:opacity 2s 2s}
-.letter{position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at center,rgba(12,8,36,.5),rgba(5,8,28,.85));visibility:hidden;animation:lin 3s 53s ease forwards}
+
+/* ===== RECUERDOS (fotos) ===== */
+.mveil{position:absolute;inset:0;z-index:19;pointer-events:none;opacity:0;
+ background:radial-gradient(ellipse at center,rgba(12,8,36,.3),rgba(5,8,28,.72));animation:veil 10s 0s ease both}
+@keyframes veil{0%{opacity:0}8%,92%{opacity:1}100%{opacity:0}}
+.memories{position:absolute;inset:0;z-index:20;pointer-events:none;overflow:hidden}
+.mem{--rot:-2deg;--mw:min(74vw,340px,46vh);position:absolute;left:50%;top:50%;translate:-50% -50%;margin:0;width:var(--mw);
+ padding:10px 10px 12px;background:#fff4e6;border-radius:4px;
+ box-shadow:0 0 60px rgba(255,200,230,.35),0 16px 44px rgba(10,5,30,.55);
+ opacity:0;animation:mem 7s ease both}
+.mem.r{--rot:2deg}
+@keyframes mem{
+ 0%{opacity:0;transform:translateY(18px) rotate(var(--rot)) scale(.93);filter:blur(8px)}
+ 18%{opacity:1;transform:translateY(0) rotate(var(--rot)) scale(.985);filter:none}
+ 82%{opacity:1;transform:translateY(0) rotate(var(--rot)) scale(1.02);filter:none}
+ 100%{opacity:0;transform:translateY(-10px) rotate(var(--rot)) scale(1.04);filter:blur(7px)}}
+.ph{aspect-ratio:4/5;overflow:hidden;border-radius:2px;background:#2a1c5c;display:grid;place-items:center}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph.empty{background:linear-gradient(160deg,#4a2f55,#b98cbe);color:var(--ink);font:italic 300 20px "Cormorant Garamond",Georgia,serif}
+.mem figcaption{min-height:2.5em;padding-top:10px;display:grid;place-items:center;text-align:center;
+ font:400 clamp(24px,6vw,32px)/1.15 "Pinyon Script",cursive;color:#4a2f55}
+
+/* ===== CARTA ===== */
+.letter{position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at center,rgba(12,8,36,.5),rgba(5,8,28,.85));visibility:hidden;animation:lin 3s var(--L) ease forwards}
 @keyframes lin{0%{opacity:0;visibility:hidden}1%{visibility:visible}100%{opacity:1;visibility:visible}}
-.card{width:min(580px,100%);max-height:84svh;overflow:auto;padding:clamp(24px,5vw,46px);border:1px solid rgba(255,217,168,.4);border-radius:18px;background:rgba(32,18,64,.55);backdrop-filter:blur(10px);color:var(--ink);text-align:center;box-shadow:0 0 70px rgba(255,170,220,.18);font-family:"Cormorant Garamond",Georgia,serif}
+.card{width:min(580px,100%);max-height:84vh;max-height:84svh;overflow:auto;padding:clamp(24px,5vw,46px);border:1px solid rgba(255,217,168,.4);border-radius:18px;background:rgba(32,18,64,.55);backdrop-filter:blur(10px);color:var(--ink);text-align:center;box-shadow:0 0 70px rgba(255,170,220,.18);font-family:"Cormorant Garamond",Georgia,serif}
 .card h2{margin:0 0 .6em;font:400 clamp(38px,8vw,58px)/1.1 "Pinyon Script",cursive}
 .card p{margin:0 0 1em;font-weight:300;font-size:clamp(18px,2.4vw,22px);line-height:1.6}
 .card .sign{font-style:italic;margin-top:1.4em}
 .rv{opacity:0;animation:endin 2.4s ease forwards}
-.card .again{position:static;margin-top:1.2em;animation:endin 2s 70.5s ease forwards}
+.card .again{position:static;margin-top:1.2em;animation:endin 2s calc(var(--L) + 17.5s) ease forwards}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-delay:0s!important}}
 </style>
 </head>
@@ -134,30 +159,37 @@ h1{margin:0;font-weight:300;font-size:clamp(38px,8vw,92px);line-height:1;letter-
   </svg>
 
   <!-- AVATARES: reemplaza cada .slot por <img src="tu-avatar.png" alt="..."> -->
-  <div class="avatar left"><div class="slot">Tu avatar</div></div>
-  <div class="avatar right"><div class="slot">Su avatar</div></div>
+  <div class="avatar left"><img src="yo.png" alt="Yo"></div>
+  <div class="avatar right"><img src="Conejita.png" alt="Conejita"></div>
 
+  <canvas id="dust" class="layer"></canvas>
   <div class="layer vignette"></div>
   </div>
   <canvas id="rain" class="layer"></canvas>
 
   <div class="text">
     <h1>Un año contigo</h1>
-    <p class="sub">Entre millones de estrellas, mi cielo favorito eres tú.</p>
+    <p class="sub">En dondequiera que termines en este mundo, estaré buscándote</p>
   </div>
   <div class="flash"></div>
   <canvas id="words" class="layer"></canvas>
+
+  <!-- RECUERDOS: se llenan desde la lista MEMORIES (en el script de abajo) -->
+  <div class="mveil" id="mveil"></div>
+  <div class="memories" id="memories"></div>
+
   <!-- CARTA: edita el texto a tu gusto -->
   <div class="letter"><div class="card">
-    <h2 class="rv" style="animation-delay:54.5s">Para ti, mi Conejita</h2>
-    <p class="rv" style="animation-delay:56s">Hace un año el universo hizo algo imposible: puso nuestros caminos en el mismo cielo.</p>
-    <p class="rv" style="animation-delay:58.5s">Desde entonces, cada día a tu lado se volvió mi favorito: tu risa, tus abrazos, la forma en que haces bonito hasta lo más simple.</p>
-    <p class="rv" style="animation-delay:61s">No sé cuántas estrellas hay en el cielo, pero sé que ninguna brilla como tú.</p>
-    <p class="rv" style="animation-delay:63.5s">Gracias por quedarte, por cuidarme y por soñar conmigo. Quiero un año más, y después otro, y otro, hasta quedarme sin estrellas para contarlas contigo.</p>
-    <p class="rv sign" style="animation-delay:66.5s">Te amo, hoy y siempre.<br>Tu nombre ♡</p>
+    <h2 class="rv" style="animation-delay:calc(var(--L) + 1.5s)">Para ti, mi Conejita</h2>
+    <p class="rv" style="animation-delay:calc(var(--L) + 3s)">Hace un año el universo hizo algo imposible, puso nuestros caminos en el mismo cielo.</p>
+    <p class="rv" style="animation-delay:calc(var(--L) + 5.5s)">Desde entonces, cada día a tu lado se volvió mi favorito, tu risa, tus enojos, tu nombre, la forma en que haces bonito hasta lo más simple.</p>
+    <p class="rv" style="animation-delay:calc(var(--L) + 8s)">No sé cuántas estrellas hay en el cielo, pero sé que ninguna brilla como tú.Hoy es nuestro primer año juntos, nuestro primer aniversario, un dia tan especial que espero que podamos pasarlo juntos.</p>
+    <p class="rv" style="animation-delay:calc(var(--L) + 10.5s)">Hoy me siento muy feliz y a la vez triste por que me gustaria estar a tu lado y mas por que se que este año no te podre ver como yo tanto soñe, pero confio en dios y podamos vernos algun dia todo dependera de ti. </p>
+     <p class="rv" style="animation-delay:calc(var(--L) + 13.5s)">Feliz primer año juntos de mi parte estoy muy feliz de haber coincidido contigo ese dia jenifer, te adueñaste de mi corazon por completo, espero que algun dia yo pueda ser para ti algo que no quieras perder por nada del mundo por que para mi si lo eres no te quiero perder nunca, te seguire mostrando con mi acciones y palabras lo mucho que te amo y que signficas para mi ❤️. Te dedico el minuto 1:21:31 de "Your name" 💕</p>
+    <p class="rv sign" style="animation-delay:calc(var(--L) + 16.5s)">Te amo, hoy, mañana y siempre. Mi nombre favorito siempre sera <br>Your Name ♡</p>
+    <p class="rv sign" style="animation-delay:calc(var(--L) + 18.5s)">Jenifer</p>
     <button class="again" onclick="location.reload()">Volver a verlo</button>
   </div></div>
-   class="layer"></canvas>
   <div class="fade"></div>
   <button class="mute" id="mute" aria-label="Silenciar música">♪</button>
   <div class="start"><div><h1 class="t1" style="opacity:1;animation:none">Para mi Conejita</h1><button class="begin" id="begin">Toca para comenzar</button><div class="hint">Mejor con sonido y a pantalla completa</div></div></div>
@@ -256,6 +288,50 @@ h1{margin:0;font-weight:300;font-size:clamp(38px,8vw,92px);line-height:1;letter-
 })();
 </script>
 <script>
+/* ============================================================
+   RECUERDOS: edita esta lista a tu gusto.
+   - src:  ruta de la foto (ej. 'fotos/1.jpg'). Mejor vertical (4:5).
+   - text: las palabras que aparecen debajo de la foto.
+   Agrega o quita líneas; la carta se retrasa sola según cuántas haya.
+   ============================================================ */
+(function(){
+  var MEMORIES=[
+    {src:'novios.png',text:'17/11/2025 El dia que nos hicimos novios ❤️'},
+    {src:'inicios.png',text:'Nuestros primero momentos juntos'},
+    {src:'Lugarbonito.png',text:'En nuestro lugar especial'},
+    {src:'mxpe.png',text:'La distancia no cambia mis sentimientos'},
+    {src:'beso.png',text:'Un beso que espero con ansias'},
+    {src:'Rojitos.png',text:'Yo combinando contigo siempre'},
+    {src:'conejitos.png',text:'Conejitos'},
+    {src:'primer dia.jpeg',text:'Y lo que falta por vivir'},
+    {src:'anillo.jpeg',text:'No te lo pude entregar en diciembre :c'},
+    {src:'manos.jpeg',text:'Sueño poder tener tu mano junto a la mia '}
+  ];
+  var START=52.5;   // segundo en que empieza la primera foto (después de "Conejita")
+  var STEP=7;       // segundos por foto (entra, se queda y se desvanece)
+
+  var scene=document.querySelector('.scene'),box=document.getElementById('memories'),veil=document.getElementById('mveil');
+  MEMORIES.forEach(function(m,i){
+    var f=document.createElement('figure');f.className='mem '+(i%2?'r':'l');
+    f.style.animationDuration=STEP+'s';
+    f.style.animationDelay=(START+i*STEP)+'s';
+    var ph=document.createElement('div');ph.className='ph';
+    var img=new Image();img.alt=m.text;
+    img.onerror=function(){if(img.parentNode)img.parentNode.removeChild(img);ph.className='ph empty';ph.textContent='Tu foto aquí'};
+    img.src=m.src;ph.appendChild(img);
+    var cap=document.createElement('figcaption');cap.textContent=m.text;
+    f.appendChild(ph);f.appendChild(cap);box.appendChild(f);
+  });
+  var total=MEMORIES.length*STEP;
+  if(MEMORIES.length){
+    veil.style.animationDelay=(START-1)+'s';
+    veil.style.animationDuration=(total+2)+'s';
+  }else{veil.style.display='none'}
+  // La carta aparece justo cuando termina la última foto
+  scene.style.setProperty('--L',(START+total+.5)+'s');
+})();
+</script>
+<script>
 (function(){
   var SONG='sparckle.mp3'; // opcional: aquí puedes poner tu canción (data:audio/mp3;base64,...)
   var scene=document.querySelector('.scene'),ctx,master,au,muted=false;
@@ -299,7 +375,11 @@ h1{margin:0;font-weight:300;font-size:clamp(38px,8vw,92px);line-height:1;letter-
     if(scene.classList.contains('go'))return;
     scene.classList.add('go');
     if(window.startRain)startRain();if(window.startWords)startWords();
-    if(SONG){au=new Audio(SONG);au.loop=true;au.volume=.8;au.play().catch(function(){})}else synth();
+    if(SONG){
+      au=new Audio(SONG);au.loop=true;au.volume=.8;
+      // Si el mp3 no existe o falla, entra la música sintetizada de respaldo
+      au.play().catch(function(){au=null;synth();if(ctx&&ctx.state==='suspended')ctx.resume()});
+    }else synth();
     if(ctx&&ctx.state==='suspended')ctx.resume();
   }
   document.getElementById('begin').addEventListener('click',begin);
