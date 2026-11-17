@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Un año contigo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300;1,500&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#fff4e6;--glow:#ffd9a8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#0b1633;overflow:hidden}
+.scene{position:relative;width:100%;height:100%;min-height:520px;overflow:hidden;
+ background:linear-gradient(180deg,#081230 0%,#14264f 16%,#2b4682 32%,#6a6fb0 46%,#b98cbe 58%,#f0a9b8 68%,#ffcfa3 76%,#ffe3b0 82%,#ffd08a 100%)}
+.layer{position:absolute;inset:0;pointer-events:none}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.clouds{overflow:hidden}
+.band{position:absolute;left:0;width:200%;height:0;animation:drift linear infinite}
+.puff{position:absolute;border-radius:50%;transform:translate(-50%,-50%)}
+@keyframes drift{to{transform:translateX(-50%)}}
+.comet{position:absolute;left:0;top:0;width:100%;height:78%}
+.comet path{fill:none;stroke-linecap:round}
+.shimmer{animation:shim 5s ease-in-out infinite alternate}
+@keyframes shim{from{opacity:.78}to{opacity:1}}
+.beam{position:absolute;left:50%;top:50%;bottom:0;width:3px;margin-left:-1.5px;
+ background:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,225,240,.95) 30%,#fff 62%,rgba(255,235,200,.9) 80%,rgba(255,220,170,.0) 100%);
+ box-shadow:0 0 14px 3px rgba(255,210,235,.75),0 0 60px 14px rgba(255,190,220,.4);animation:pulse 4s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.75}to{opacity:1}}
+.sun{position:absolute;left:50%;top:74.5%;width:min(80vw,820px);aspect-ratio:1;transform:translate(-50%,-50%);
+ background:radial-gradient(circle,rgba(255,255,255,.95) 0,rgba(255,236,190,.65) 6%,rgba(255,190,150,.25) 20%,rgba(255,170,150,0) 52%);animation:pulse 5s ease-in-out infinite alternate}
+.flare{position:absolute;left:0;right:0;top:74.5%;height:2px;margin-top:-1px;
+ background:linear-gradient(90deg,transparent,rgba(255,240,210,.9) 30%,#fff 50%,rgba(255,240,210,.9) 70%,transparent);box-shadow:0 0 18px 4px rgba(255,225,170,.7)}
+.sea{position:absolute;left:0;right:0;top:74.5%;bottom:0;
+ background:linear-gradient(180deg,rgba(255,226,170,.9),rgba(246,174,150,.85) 45%,rgba(160,110,150,.9))}
+.ground{position:absolute;left:0;bottom:0;width:100%;height:24%}
+.vignette{background:radial-gradient(ellipse at 50% 62%,transparent 55%,rgba(8,12,40,.45) 100%)}
+
+/* Espacios para los avatares */
+.avatar{position:absolute;bottom:24.5%;width:clamp(84px,15vw,170px);aspect-ratio:1/2.1;display:flex;align-items:flex-end;justify-content:center}
+.avatar.left{left:calc(50% - clamp(84px,15vw,170px) - clamp(34px,7vw,90px))}
+.avatar.right{left:calc(50% + clamp(34px,7vw,90px))}
+.avatar img{width:100%;height:100%;object-fit:contain;object-position:bottom;filter:drop-shadow(0 0 18px rgba(255,210,170,.55))}
+.slot{width:100%;height:100%;border:1.5px dashed rgba(255,244,230,.7);border-radius:999px 999px 14px 14px;display:grid;place-items:center;
+ text-align:center;font:italic 300 clamp(13px,1.8vw,18px)/1.3 "Cormorant Garamond",Georgia,serif;color:var(--ink);background:rgba(40,20,60,.18);backdrop-filter:blur(2px)}
+
+/* Texto */
+.text{position:absolute;left:0;right:0;bottom:3.5%;text-align:center;color:var(--ink);padding:0 20px;font-family:"Cormorant Garamond",Georgia,serif;text-shadow:0 2px 22px rgba(30,10,50,.75)}
+h1{margin:0;font-weight:300;font-size:clamp(38px,8vw,92px);line-height:1;letter-spacing:.02em;opacity:0;animation:rise 2.4s .6s ease forwards}
+.sub{margin:.6em auto 0;max-width:34ch;font-style:italic;font-weight:300;font-size:clamp(17px,2.4vw,26px);line-height:1.4;opacity:0;animation:rise 2.4s 1.6s ease forwards}
+@keyframes rise{from{opacity:0;transform:translateY(14px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.fade{position:absolute;inset:0;background:#050a1c;animation:out 2.6s ease forwards;pointer-events:none}
+@keyframes out{to{opacity:0;visibility:hidden}}
+/* Viaje de cámara: lejos → avatares → cielo */
+.cam{position:absolute;inset:0;transform-origin:50% 72%;animation:travel 25s linear forwards;will-change:transform}
+@keyframes travel{0%{transform:scale(1) translateY(0);animation-timing-function:cubic-bezier(.4,0,.2,1)}36%{transform:scale(2.4) translateY(0);animation-timing-function:linear}50%{transform:scale(2.4) translateY(0);animation-timing-function:cubic-bezier(.6,0,.9,.4)}66%{transform:scale(5) translateY(0);animation-timing-function:cubic-bezier(.3,0,.2,1)}84%,100%{transform:scale(2.8) translateY(46%)}}
+.flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,#fff 0,#ffeed6 40%,#ffd7e8 100%);animation:flash 25s linear forwards}
+@keyframes flash{0%,58%{opacity:0}64%{opacity:1}70%{opacity:.9}80%,100%{opacity:0}}
+.avatar{--w:clamp(56px,8.5vw,110px);--g:clamp(22px,4vw,56px);width:var(--w)}
+.avatar.left{left:calc(50% - var(--w) - var(--g))}
+.avatar.right{left:calc(50% + var(--g))}
+@keyframes cap{0%{opacity:0;transform:translateY(14px);filter:blur(6px)}14%{opacity:1;transform:none;filter:none}78%{opacity:1;filter:none}100%{opacity:0;filter:blur(6px)}}
+.text h1{animation:cap 6.5s 8.5s ease forwards}
+.text .sub{animation:cap 6.5s 9.3s ease forwards}
+.end{position:absolute;left:0;right:0;top:8%;padding:0 20px;text-align:center;color:var(--ink);font-family:"Cormorant Garamond",Georgia,serif;text-shadow:0 2px 24px rgba(10,10,50,.85);opacity:0;animation:endin 3.5s 22s ease forwards}
+.end div:first-child{font-weight:300;font-size:clamp(28px,5.5vw,64px);line-height:1.1}
+.end div+div{margin-top:.5em;font-style:italic;font-weight:300;font-size:clamp(17px,2.4vw,26px)}
+@keyframes endin{from{opacity:0;transform:translateY(12px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.again{position:absolute;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));padding:8px 16px;border-radius:999px;border:1px solid rgba(255,244,230,.55);background:rgba(30,15,55,.35);color:var(--ink);font:italic 300 16px "Cormorant Garamond",Georgia,serif;cursor:pointer;opacity:0;animation:endin 2s 27s ease forwards}
+.again:focus-visible{outline:2px solid var(--glow);outline-offset:3px}
+.scene:not(.go) *{animation-play-state:paused!important}
+.start{position:absolute;inset:0;z-index:50;display:grid;place-items:center;text-align:center;color:var(--ink);font-family:"Cormorant Garamond",Georgia,serif;background:radial-gradient(circle at 50% 62%,#2a1c5c,#080d2a 55%,#03060f)}
+.start .t1{font:400 clamp(44px,10vw,88px)/1 "Pinyon Script",cursive;margin:0 0 .5em;text-shadow:0 0 30px rgba(255,190,230,.5)}
+.begin{padding:12px 30px;border-radius:999px;border:1px solid rgba(255,217,168,.7);background:rgba(255,217,168,.08);color:var(--ink);font:italic 300 21px "Cormorant Garamond",Georgia,serif;cursor:pointer;box-shadow:0 0 30px rgba(255,200,160,.25)}
+.begin:hover{background:rgba(255,217,168,.2)}
+.begin:focus-visible,.mute:focus-visible{outline:2px solid var(--glow);outline-offset:3px}
+.hint{margin-top:1.2em;font-style:italic;font-weight:300;font-size:16px;opacity:.7}
+.go .start{opacity:0;visibility:hidden;transition:opacity 1.8s ease,visibility 0s 1.8s}
+.mute{position:absolute;z-index:40;top:calc(14px + env(safe-area-inset-top,0px));right:14px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,244,230,.5);background:rgba(30,15,55,.4);color:var(--ink);font-size:18px;cursor:pointer;opacity:0;pointer-events:none}
+.go .mute{opacity:1;pointer-events:auto;transition:opacity 2s 2s}
+.letter{position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at center,rgba(12,8,36,.5),rgba(5,8,28,.85));visibility:hidden;animation:lin 3s 53s ease forwards}
+@keyframes lin{0%{opacity:0;visibility:hidden}1%{visibility:visible}100%{opacity:1;visibility:visible}}
+.card{width:min(580px,100%);max-height:84svh;overflow:auto;padding:clamp(24px,5vw,46px);border:1px solid rgba(255,217,168,.4);border-radius:18px;background:rgba(32,18,64,.55);backdrop-filter:blur(10px);color:var(--ink);text-align:center;box-shadow:0 0 70px rgba(255,170,220,.18);font-family:"Cormorant Garamond",Georgia,serif}
+.card h2{margin:0 0 .6em;font:400 clamp(38px,8vw,58px)/1.1 "Pinyon Script",cursive}
+.card p{margin:0 0 1em;font-weight:300;font-size:clamp(18px,2.4vw,22px);line-height:1.6}
+.card .sign{font-style:italic;margin-top:1.4em}
+.rv{opacity:0;animation:endin 2.4s ease forwards}
+.card .again{position:static;margin-top:1.2em;animation:endin 2s 70.5s ease forwards}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-delay:0s!important}}
+</style>
+</head>
+<body>
+<main class="scene">
+  <div class="cam">
+  <canvas id="stars" class="layer"></canvas>
+
+  <svg class="comet layer" viewBox="0 0 800 780" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="g1" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff9ad0"/><stop offset=".12" stop-color="#d6f6ff"/><stop offset=".35" stop-color="#46c8ff"/><stop offset=".75" stop-color="#2b6bff" stop-opacity=".7"/><stop offset="1" stop-color="#2b6bff" stop-opacity="0"/></linearGradient>
+      <filter id="blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
+      <filter id="soft"><feGaussianBlur stdDeviation="1.2"/></filter>
+    </defs>
+    <g class="shimmer">
+      <g filter="url(#blur)" stroke="url(#g1)" opacity=".85">
+        <path d="M392 596C385 330 470 120 690 -30" stroke-width="46"/>
+        <path d="M392 596C330 360 300 160 160 -30" stroke-width="30"/>
+        <path d="M392 596C430 380 580 270 830 170" stroke-width="30"/>
+        <path d="M392 596C300 470 120 330 -10 190" stroke-width="22"/>
+      </g>
+      <g stroke="url(#g1)" filter="url(#soft)">
+        <path d="M392 596C385 330 470 120 690 -30" stroke-width="22"/>
+        <path d="M388 596C375 340 450 130 640 -30" stroke-width="10" opacity=".9"/>
+        <path d="M396 596C392 340 485 140 735 -20" stroke-width="7" opacity=".8"/>
+        <path d="M392 596C330 360 300 160 160 -30" stroke-width="12"/>
+        <path d="M398 596C350 380 330 190 230 -30" stroke-width="5" opacity=".8"/>
+        <path d="M392 596C430 380 580 270 830 170" stroke-width="12"/>
+        <path d="M394 596C440 400 600 300 830 215" stroke-width="5" opacity=".8"/>
+        <path d="M392 596C300 470 120 330 -10 190" stroke-width="8"/>
+      </g>
+      <circle cx="392" cy="600" r="9" fill="#ffd1ec" filter="url(#soft)"/>
+      <circle cx="392" cy="600" r="26" fill="#ff9ad0" opacity=".35" filter="url(#blur)"/>
+    </g>
+  </svg>
+
+  <div class="layer clouds" id="clouds"></div>
+  <div class="sea layer"></div>
+  <div class="sun"></div>
+  <div class="flare"></div>
+  <div class="beam"></div>
+
+  <svg class="ground" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5c78"/><stop offset=".35" stop-color="#4a2f55"/><stop offset="1" stop-color="#1c1030"/></linearGradient></defs>
+    <path d="M0 70L40 48 90 58 140 30 190 52 250 40 300 64 360 54 420 74 470 52 500 64 530 52 580 76 640 50 700 60 760 38 820 56 880 34 940 50 1000 28V200H0Z" fill="url(#gr)"/>
+    <path d="M0 70L40 48 90 58 140 30 190 52 250 40 300 64 360 54 420 74 470 52 500 64 530 52 580 76 640 50 700 60 760 38 820 56 880 34 940 50 1000 28" fill="none" stroke="#ffd9a0" stroke-width="2" opacity=".75"/>
+    <path d="M0 120C200 100 300 130 500 110S800 100 1000 125V200H0Z" fill="#150a28" opacity=".55"/>
+  </svg>
+
+  <!-- AVATARES: reemplaza cada .slot por <img src="tu-avatar.png" alt="..."> -->
+  <div class="avatar left"><div class="slot">Tu avatar</div></div>
+  <div class="avatar right"><div class="slot">Su avatar</div></div>
+
+  <div class="layer vignette"></div>
+  </div>
+  <canvas id="rain" class="layer"></canvas>
+
+  <div class="text">
+    <h1>Un año contigo</h1>
+    <p class="sub">Entre millones de estrellas, mi cielo favorito eres tú.</p>
+  </div>
+  <div class="flash"></div>
+  <canvas id="words" class="layer"></canvas>
+  <!-- CARTA: edita el texto a tu gusto -->
+  <div class="letter"><div class="card">
+    <h2 class="rv" style="animation-delay:54.5s">Para ti, mi Conejita</h2>
+    <p class="rv" style="animation-delay:56s">Hace un año el universo hizo algo imposible: puso nuestros caminos en el mismo cielo.</p>
+    <p class="rv" style="animation-delay:58.5s">Desde entonces, cada día a tu lado se volvió mi favorito: tu risa, tus abrazos, la forma en que haces bonito hasta lo más simple.</p>
+    <p class="rv" style="animation-delay:61s">No sé cuántas estrellas hay en el cielo, pero sé que ninguna brilla como tú.</p>
+    <p class="rv" style="animation-delay:63.5s">Gracias por quedarte, por cuidarme y por soñar conmigo. Quiero un año más, y después otro, y otro, hasta quedarme sin estrellas para contarlas contigo.</p>
+    <p class="rv sign" style="animation-delay:66.5s">Te amo, hoy y siempre.<br>Tu nombre ♡</p>
+    <button class="again" onclick="location.reload()">Volver a verlo</button>
+  </div></div>
+   class="layer"></canvas>
+  <div class="fade"></div>
+  <button class="mute" id="mute" aria-label="Silenciar música">♪</button>
+  <div class="start"><div><h1 class="t1" style="opacity:1;animation:none">Para mi Conejita</h1><button class="begin" id="begin">Toca para comenzar</button><div class="hint">Mejor con sonido y a pantalla completa</div></div></div>
+</main>
+
+<script>
+(function(){
+  var rnd=function(a,b){return a+Math.random()*(b-a)};
+  // Nubes en capas que se desplazan despacio
+  var wrap=document.getElementById('clouds');
+  var layers=[
+    {y:[6,26],c:'rgba(30,48,92,.6)',h:[5,9],w:[22,40],b:22,n:7,t:260},
+    {y:[26,42],c:'rgba(150,160,225,.55)',h:[4,7],w:[18,34],b:16,n:9,t:210},
+    {y:[40,56],c:'rgba(214,176,224,.6)',h:[3,6],w:[16,30],b:14,n:10,t:170},
+    {y:[54,68],c:'rgba(255,190,205,.65)',h:[3,5],w:[16,30],b:12,n:10,t:140},
+    {y:[66,76],c:'rgba(255,238,215,.85)',h:[2,4],w:[14,26],b:9,n:12,t:110}
+  ];
+  layers.forEach(function(L){
+    var band=document.createElement('div');band.className='band';band.style.animationDuration=L.t+'s';
+    for(var k=0;k<L.n;k++){
+      var x=k/L.n*50+rnd(-2,2),y=rnd(L.y[0],L.y[1]),w=rnd(L.w[0],L.w[1]),h=rnd(L.h[0],L.h[1]);
+      for(var c=0;c<2;c++){
+        var p=document.createElement('div');p.className='puff';
+        p.style.cssText='left:'+(x+c*50)+'%;top:'+y+'vh;width:'+w+'vw;height:'+h+'vh;background:'+L.c+';filter:blur('+L.b+'px)';
+        band.appendChild(p);
+      }
+    }
+    wrap.appendChild(band);
+  });
+  // Estrellas, estrellas fugaces y polvo dorado
+  var sc=document.getElementById('stars'),dc=document.getElementById('dust');
+  var sx=sc.getContext('2d'),dx=dc.getContext('2d'),W,H,stars=[],dust=[],shoot=null;
+  function size(){
+    var r=Math.min(2.5,(window.devicePixelRatio||1)*1.6);W=sc.clientWidth;H=sc.clientHeight;
+    [sc,dc].forEach(function(c){c.width=W*r;c.height=H*r});
+    sx.setTransform(r,0,0,r,0,0);dx.setTransform(r,0,0,r,0,0);
+    stars=[];for(var i=0;i<Math.round(W*H/2800);i++){var y=Math.pow(Math.random(),1.6)*H*.62;stars.push({x:rnd(0,W),y:y,r:rnd(.3,1.5),p:rnd(0,6.28),s:rnd(.6,2.2)})}
+    dust=[];for(i=0;i<46;i++)dust.push(mk(true));
+  }
+  function mk(init){return{x:rnd(0,W),y:init?rnd(H*.5,H):H*rnd(.9,1.05),r:rnd(.8,2.4),v:rnd(.12,.4),d:rnd(-.15,.15),p:rnd(0,6.28)}}
+  function draw(t){
+    t/=1000;sx.clearRect(0,0,W,H);dx.clearRect(0,0,W,H);
+    stars.forEach(function(s){
+      var a=.45+.55*Math.sin(t*s.s+s.p);sx.globalAlpha=Math.max(.08,a);
+      sx.fillStyle='#fff';sx.beginPath();sx.arc(s.x,s.y,s.r,0,6.28);sx.fill();
+    });
+    if(!shoot&&Math.random()<.004)shoot={x:rnd(W*.1,W*.9),y:rnd(0,H*.2),l:0};
+    if(shoot){
+      var g=sx.createLinearGradient(shoot.x,shoot.y,shoot.x-shoot.l,shoot.y-shoot.l*.4);
+      g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(1,'rgba(255,255,255,0)');
+      sx.globalAlpha=1;sx.strokeStyle=g;sx.lineWidth=1.6;sx.beginPath();sx.moveTo(shoot.x,shoot.y);
+      sx.lineTo(shoot.x-shoot.l,shoot.y-shoot.l*.4);sx.stroke();
+      shoot.x+=14;shoot.y+=5.6;shoot.l=Math.min(shoot.l+4,120);
+      if(shoot.x>W+50||shoot.y>H*.6)shoot=null;
+    }
+    dust.forEach(function(d,i){
+      d.y-=d.v;d.x+=d.d+Math.sin(t+d.p)*.2;
+      var a=.35+.45*Math.sin(t*1.6+d.p);
+      var gr=dx.createRadialGradient(d.x,d.y,0,d.x,d.y,d.r*4);
+      gr.addColorStop(0,'rgba(255,236,190,'+a+')');gr.addColorStop(1,'rgba(255,220,170,0)');
+      dx.fillStyle=gr;dx.beginPath();dx.arc(d.x,d.y,d.r*4,0,6.28);dx.fill();
+      if(d.y<H*.35)dust[i]=mk(false);
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',size);size();requestAnimationFrame(draw);
+})();
+</script>
+<script>
+(function(){
+  var c=document.getElementById('rain'),x=c.getContext('2d'),W,H,M=[],t0=Infinity,burst=false;window.startRain=function(){t0=performance.now()};
+  var pal=[[255,255,255],[150,230,255],[255,190,230],[255,226,160],[190,200,255]];
+  var rnd=function(a,b){return a+Math.random()*(b-a)};
+  function size(){var r=window.devicePixelRatio||1;W=c.clientWidth;H=c.clientHeight;c.width=W*r;c.height=H*r;x.setTransform(r,0,0,r,0,0)}
+  function spawn(wait){var k=Math.max(.6,H/900);M.push({x:rnd(W*.1,W*1.25),y:rnd(-120,H*.45),v:rnd(6,10)*k,l:rnd(200,380)*k,w:rnd(1.5,2.8),c:pal[Math.random()*pal.length|0],q:wait||0})}
+  function draw(){
+    var s=(performance.now()-t0)/1000,l=Math.min(1,Math.max(0,(s-16.5)/6));l=l*l*(3-2*l);
+    if(M.length<4&&Math.random()<l*.009)spawn();
+    if(s>19&&!burst){burst=true;for(var i=0;i<3;i++)spawn(i*1400)}
+    x.clearRect(0,0,W,H);x.globalCompositeOperation='lighter';x.lineCap='round';
+    for(var i=M.length-1;i>=0;i--){
+      var m=M[i];
+      if(m.q>0){m.q-=16;continue}
+      m.x-=m.v*.82;m.y+=m.v*.57;
+      if(m.y>H+40||m.x<-160){M.splice(i,1);continue}
+      var tx=m.x+m.l*.82,ty=m.y-m.l*.57,rgb=m.c.join(','),g=x.createLinearGradient(m.x,m.y,tx,ty);
+      g.addColorStop(0,'rgba('+rgb+',.95)');g.addColorStop(.35,'rgba('+rgb+',.35)');g.addColorStop(1,'rgba('+rgb+',0)');
+      x.strokeStyle=g;x.lineWidth=m.w;x.beginPath();x.moveTo(m.x,m.y);x.lineTo(tx,ty);x.stroke();
+      var h=x.createRadialGradient(m.x,m.y,0,m.x,m.y,m.w*6);
+      h.addColorStop(0,'rgba(255,255,255,.95)');h.addColorStop(.3,'rgba('+rgb+',.5)');h.addColorStop(1,'rgba('+rgb+',0)');
+      x.fillStyle=h;x.beginPath();x.arc(m.x,m.y,m.w*6,0,6.28);x.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',size);size();requestAnimationFrame(draw);
+})();
+</script>
+<script>
+(function(){
+  var SONG='sparckle.mp3'; // opcional: aquí puedes poner tu canción (data:audio/mp3;base64,...)
+  var scene=document.querySelector('.scene'),ctx,master,au,muted=false;
+  function f(m){return 440*Math.pow(2,(m-69)/12)}
+  var PROG=[[50,57,62,66,69,66,62,57],[45,52,57,61,64,61,57,52],[47,54,59,62,66,62,59,54],[42,49,54,57,61,57,54,49],[43,50,55,59,62,59,55,50],[50,57,62,66,69,66,62,57],[43,50,55,59,62,59,55,50],[45,52,57,61,64,61,57,52]];
+  function synth(){
+    var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    ctx=new AC();master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
+    master.gain.linearRampToValueAtTime(.8,ctx.currentTime+6);
+    var len=ctx.sampleRate*3,ir=ctx.createBuffer(2,len,ctx.sampleRate);
+    for(var ch=0;ch<2;ch++){var d=ir.getChannelData(ch);for(var i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
+    var rev=ctx.createConvolver();rev.buffer=ir;var rg=ctx.createGain();rg.gain.value=.5;rev.connect(master);
+    var lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3200;
+    lp.connect(master);lp.connect(rg);rg.connect(rev);
+    function note(m,t,v,d){
+      var g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.13*v,t+.012);g.gain.exponentialRampToValueAtTime(.0008,t+d);
+      var o=ctx.createOscillator();o.type='triangle';o.frequency.value=f(m);
+      var o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=f(m)*2;var g2=ctx.createGain();g2.gain.value=.3;
+      o.connect(g);o2.connect(g2);g2.connect(g);g.connect(lp);o.start(t);o2.start(t);o.stop(t+d);o2.stop(t+d);
+    }
+    function pad(c,t,d){
+      [c[1],c[2],c[3]].forEach(function(m,k){
+        var g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.022,t+1.8);g.gain.linearRampToValueAtTime(0,t+d+1.5);
+        var o=ctx.createOscillator();o.type='sine';o.frequency.value=f(m);o.detune.value=(k-1)*7;
+        o.connect(g);g.connect(lp);o.start(t);o.stop(t+d+1.6);
+      });
+    }
+    var step=.55,next=ctx.currentTime+.3,n=0;
+    setInterval(function(){
+      while(next<ctx.currentTime+1.3){
+        var c=PROG[Math.floor(n/8)%PROG.length],k=n%8;
+        if(k===0)pad(c,next,8*step);
+        note(c[k],next,k===0?1:.7,2.4);
+        if(k===0)note(c[4]+12,next,.45,3.4);
+        if(k===4)note(c[3]+12,next,.35,3);
+        n++;next+=step;
+      }
+    },200);
+  }
+  function begin(){
+    if(scene.classList.contains('go'))return;
+    scene.classList.add('go');
+    if(window.startRain)startRain();if(window.startWords)startWords();
+    if(SONG){au=new Audio(SONG);au.loop=true;au.volume=.8;au.play().catch(function(){})}else synth();
+    if(ctx&&ctx.state==='suspended')ctx.resume();
+  }
+  document.getElementById('begin').addEventListener('click',begin);
+  document.getElementById('mute').addEventListener('click',function(){
+    muted=!muted;this.textContent=muted?'×':'♪';
+    if(au)au.muted=muted;
+    if(master)master.gain.setTargetAtTime(muted?0:.8,ctx.currentTime,.15);
+  });
+})();
+(function(){
+  var c=document.getElementById('words'),x=c.getContext('2d'),W,H,P={},T0=null;
+  var WD=[['Feliz',21,6.2],['Primer',26.8,6.2],['Año',32.6,6.2],['Mi',38.4,6.2],['Conejita',44.2,8]];
+  var cols=[[255,244,214],[255,214,236],[200,230,255],[255,226,160]];
+  var rnd=function(a,b){return a+Math.random()*(b-a)},cl=function(v){return Math.min(1,Math.max(0,v))};
+  var gl=document.createElement('canvas');gl.width=gl.height=48;
+  (function(){var g=gl.getContext('2d'),r=g.createRadialGradient(24,24,0,24,24,24);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.18,'rgba(255,255,255,.8)');r.addColorStop(.5,'rgba(255,255,255,.18)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,48,48)})();
+  function size(){var r=Math.min(2,window.devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=W*r;c.height=H*r;x.setTransform(r,0,0,r,0,0);P={}}
+  function build(t){
+    var fs=Math.min(W*.84/Math.max(t.length*.5,2.2),H*.3),ow=Math.ceil(W),oh=Math.ceil(fs*1.5),o=document.createElement('canvas');o.width=ow;o.height=oh;
+    var g=o.getContext('2d');g.font='500 '+fs+'px "Cormorant Garamond",Georgia,serif';g.textAlign='center';g.textBaseline='middle';g.fillStyle='#fff';g.strokeStyle='#fff';g.lineWidth=fs*.045;g.lineJoin='round';g.fillText(t,ow/2,oh/2);g.strokeText(t,ow/2,oh/2);
+    var d=g.getImageData(0,0,ow,oh).data,gap=Math.max(3,Math.round(fs/34)),a=[],k=Math.max(.7,Math.min(W,H)/700);
+    for(var y=0;y<oh;y+=gap)for(var xx=0;xx<ow;xx+=gap)if(d[(y*ow+xx)*4+3]>128)a.push({tx:xx+rnd(-1.5,1.5),ty:y+H*.42-oh/2+rnd(-1.5,1.5),sx:rnd(0,W),sy:rnd(-H*.2,H*.8),d:rnd(0,.6),r:rnd(1.5,3.2)*k,c:cols[Math.random()*4|0],p:rnd(0,6.28),vx:rnd(-1,1)});
+    return {a:a,o:o,oy:H*.42-oh/2};
+  }
+  function draw(){
+    x.clearRect(0,0,W,H);
+    if(T0!==null){
+      var t=(performance.now()-T0)/1000;x.globalCompositeOperation='lighter';
+      WD.forEach(function(w,wi){
+        var lt=t-w[1];if(lt<0||lt>w[2])return;
+        if(!P[wi])P[wi]=build(w[0]);
+        var ds=w[2]-1.5,B=P[wi],fa=cl((lt-2)/1)*(1-cl((lt-ds)/1.5))*.4;
+        if(fa>.01){x.globalAlpha=fa;x.shadowColor='rgba(255,215,240,.95)';x.shadowBlur=22;x.drawImage(B.o,0,B.oy);x.shadowBlur=0}
+        B.a.forEach(function(p){
+          var q=cl((lt-p.d)/1.6),e=1-Math.pow(1-q,3),fx=p.sx+(p.tx-p.sx)*e+(1-e)*Math.sin(lt*2+p.p)*30,fy=p.sy+(p.ty-p.sy)*e,a=cl(q*1.8)*(.65+.35*Math.sin(lt*3+p.p*5));
+          if(lt>ds){var k=cl((lt-ds-p.d*.4)/1.5);fy-=k*k*70;fx+=p.vx*k*50;a*=1-k}
+          if(a<=.01)return;
+          var s=p.r*8;x.globalAlpha=a*.8;x.drawImage(gl,fx-s/2,fy-s/2,s,s);
+          x.globalAlpha=a;x.fillStyle='rgb('+p.c.join(',')+')';x.beginPath();x.arc(fx,fy,p.r*.8,0,6.28);x.fill();
+        });
+      });
+      x.globalAlpha=1;x.globalCompositeOperation='source-over';
+    }
+    requestAnimationFrame(draw);
+  }
+  window.startWords=function(){T0=performance.now()};
+  window.addEventListener('resize',size);size();requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
